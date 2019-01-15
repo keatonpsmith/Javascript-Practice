@@ -81,11 +81,11 @@ describe('reversi', function() {
         });
     });
 
-    describe('placeLetter', function() {
+    describe('placeLetters', function() {
         it('places a letter on a board based on algebraic notation move', function() {
             let board = rev.generateBoard(3, 3, " ");
-            board = rev.placeLetter(board, 'X', "B2");  
-            board = rev.placeLetter(board, 'O', "A3");
+            board = rev.placeLetters(board, 'X', "B2");  
+            board = rev.placeLetters(board, 'O', "A3");
             expect(board).to.deep.equal([" ", " ", " ", " ", "X", " ", "O", " ", " "]);
         });
     });
@@ -103,8 +103,8 @@ describe('reversi', function() {
         // TODO: change to regex to allow for flexible number of spaces
         it('formats a board', function() {
             let board = rev.generateBoard(3, 3, " ");
-            board = rev.placeLetter(board, 'X', "B2");
-            board = rev.placeLetter(board, 'O', "C1");
+            board = rev.placeLetters(board, 'X', "B2");
+            board = rev.placeLetters(board, 'O', "C1");
 			const expected = "     A   B   C  \n   +---+---+---+\n 1 |   |   | O |\n   +---+---+---+\n 2 |   | X |   |\n   +---+---+---+\n 3 |   |   |   |\n   +---+---+---+\n";
             expect(rev.boardToString(board)).to.equal(expected);
         });
@@ -113,15 +113,15 @@ describe('reversi', function() {
     describe('isBoardFull', function() {
         it('returns true if there are no spaces left on the board', function() {
             let board = rev.generateBoard(3, 3, " ");
-            board = rev.placeLetter(board, 'X', "A1");
-            board = rev.placeLetter(board, 'X', "A2");
-            board = rev.placeLetter(board, 'X', "A3");
-            board = rev.placeLetter(board, 'X', "B1");
-            board = rev.placeLetter(board, 'X', "B2");
-            board = rev.placeLetter(board, 'X', "B3");
-            board = rev.placeLetter(board, 'X', "C1");
-            board = rev.placeLetter(board, 'X', "C2");
-            board = rev.placeLetter(board, 'X', "C3");
+            board = rev.placeLetters(board, 'X', "A1");
+            board = rev.placeLetters(board, 'X', "A2");
+            board = rev.placeLetters(board, 'X', "A3");
+            board = rev.placeLetters(board, 'X', "B1");
+            board = rev.placeLetters(board, 'X', "B2");
+            board = rev.placeLetters(board, 'X', "B3");
+            board = rev.placeLetters(board, 'X', "C1");
+            board = rev.placeLetters(board, 'X', "C2");
+            board = rev.placeLetters(board, 'X', "C3");
             expect(rev.isBoardFull(board)).to.be.true;
         });
 
@@ -129,14 +129,14 @@ describe('reversi', function() {
             let board = rev.generateBoard(3, 3, " ");
             expect(rev.isBoardFull(board)).to.be.false;
 
-            board = rev.placeLetter(board, 'X', "A2");
-            board = rev.placeLetter(board, 'X', "A3");
-            board = rev.placeLetter(board, 'X', "B1");
-            board = rev.placeLetter(board, 'X', "B2");
-            board = rev.placeLetter(board, 'X', "B3");
-            board = rev.placeLetter(board, 'X', "C1");
-            board = rev.placeLetter(board, 'X', "C2");
-            board = rev.placeLetter(board, 'X', "C3");
+            board = rev.placeLetters(board, 'X', "A2");
+            board = rev.placeLetters(board, 'X', "A3");
+            board = rev.placeLetters(board, 'X', "B1");
+            board = rev.placeLetters(board, 'X', "B2");
+            board = rev.placeLetters(board, 'X', "B3");
+            board = rev.placeLetters(board, 'X', "C1");
+            board = rev.placeLetters(board, 'X', "C2");
+            board = rev.placeLetters(board, 'X', "C3");
             expect(rev.isBoardFull(board)).to.be.false;
         });
     });
@@ -145,7 +145,7 @@ describe('reversi', function() {
         // TODO: O -> X
         it('changes the piece in the cell specified to the opposite color (X to O or O to X)', function() {
             board = rev.generateBoard(4, 4, " ");
-            board = rev.placeLetter(board, 'X', "A1");
+            board = rev.placeLetters(board, 'X', "A1");
             board = rev.flip(board, 0, 0);
             expect(board[0]).to.equal('O');
         });
@@ -175,14 +175,14 @@ describe('reversi', function() {
         // TODO: check that move will flip other tiles
         it('returns true if move is played into empty cell that is within the board\'s dimensions and would flip at least one of the other player\'s pieces', function() {
             let board = rev.generateBoard(3, 3, " ");
-            board = rev.placeLetter(board, 'X', "A1");
-            board = rev.placeLetter(board, 'O', "A2");
+            board = rev.placeLetters(board, 'X', "A1");
+            board = rev.placeLetters(board, 'O', "A2");
             expect(rev.isValidMove(board, 'X', 2, 0)).to.be.true;
         });
         it('returns false if move does not flip at least one of the other player\'s pieces', function() {
             let board = rev.generateBoard(3, 3, " ");
-            board = rev.placeLetter(board, 'X', "B1");
-            board = rev.placeLetter(board, 'O', "A2");
+            board = rev.placeLetters(board, 'X', "B1");
+            board = rev.placeLetters(board, 'O', "A2");
             expect(rev.isValidMove(board, 'X', 2, 0)).to.be.false;
         });
 
@@ -193,7 +193,7 @@ describe('reversi', function() {
 
         it('returns false if target square is not empty', function() {
             let board = rev.generateBoard(3, 3, " ");
-            board = rev.placeLetter(board, 'O', "B2");
+            board = rev.placeLetters(board, 'O', "B2");
             expect(rev.isValidMove(board, 'X',1, 1)).to.be.false;
         });
     });
@@ -202,8 +202,8 @@ describe('reversi', function() {
         // TODO: invalid move because of no straight line
         it('returns true if move is played into empty cell that is within the board\'s dimensions', function() {
             let board = rev.generateBoard(3, 3, " ");
-            board = rev.placeLetter(board, 'X', "A1");
-            board = rev.placeLetter(board, 'O', "A2");
+            board = rev.placeLetters(board, 'X', "A1");
+            board = rev.placeLetters(board, 'O', "A2");
             expect(rev.isValidMoveAlgebraicNotation(board, 'X', 'A3')).to.be.true;
         });
 
@@ -214,7 +214,7 @@ describe('reversi', function() {
 
         it('returns false if move is played into occupied cell', function() {
             let board = rev.generateBoard(3, 3, " ");
-            board = rev.placeLetter(board, 'X', "A3");
+            board = rev.placeLetters(board, 'X', "A3");
             expect(rev.isValidMoveAlgebraicNotation(board, 'X', 'A3')).to.be.false;
         });
     });
@@ -223,16 +223,16 @@ describe('reversi', function() {
     describe('getValidMoves', function() {
         it('returns list of valid moves available for board and letter', function() {
             let board = rev.generateBoard(3, 3, " ");
-            board = rev.placeLetter(board, 'X', "A1");
-            board = rev.placeLetter(board, 'O', "A2");
+            board = rev.placeLetters(board, 'X', "A1");
+            board = rev.placeLetters(board, 'O', "A2");
             const res = rev.getValidMoves(board, 'X');
             // expect(res).to.deep.equal([[2, 0]]);
             expect(res).to.deep.equal([[2, 0]]);
         });
         it('returns an empty list if no valid moves are available for board and letter', function() {
             let board = rev.generateBoard(3, 3, " ");
-            board = rev.placeLetter(board, 'X', "A1");
-            board = rev.placeLetter(board, 'O', "A3");
+            board = rev.placeLetters(board, 'X', "A1");
+            board = rev.placeLetters(board, 'O', "A3");
             const res = rev.getValidMoves(board, 'X');
             // expect(res).to.deep.equal([[2, 0]]);
             expect(res).to.deep.equal([]);
@@ -315,9 +315,9 @@ describe('reversi', function() {
             // TODO: zero letters
             it('returns object containing counts of letters', function() {
                 let board = rev.generateBoard(3, 3, " ");
-                board = rev.placeLetter(board, 'X', "A1");
-            board = rev.placeLetter(board, 'X', "A3");
-            board = rev.placeLetter(board, 'O', "A2");
+                board = rev.placeLetters(board, 'X', "A1");
+            board = rev.placeLetters(board, 'X', "A3");
+            board = rev.placeLetters(board, 'O', "A2");
             const counts = rev.getLetterCounts(board);
             expect(counts['X']).to.equal(2);
             expect(counts['O']).to.equal(1);

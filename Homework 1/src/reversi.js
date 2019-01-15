@@ -35,35 +35,32 @@ function indexToRowCol (board, i) {
 
 function setBoardCell (board, letter, row, col) {
     const newBoard = [...board];
-    const sizeOfBoard = Math.sqrt(board.length);
-    const indexToChange = ((sizeOfBoard * row) + col);
+    const indexToChange = rowColToIndex(board, row, col);
     newBoard[indexToChange] = letter;
     return newBoard;
 }
 
 function algebraicToRowCol (algebraicNotation) {
-    if (algebraicNotation.length < 2 || algebraicNotation.length > 3) {
+    if (algebraicNotation.length !== 2) {
         return undefined;
     }
     else if (algebraicNotation.includes(" ") || algebraicNotation.includes("/^[a-z0-9]+$/i")) {
         return undefined;
     }
     const algNot = algebraicNotation.split("");
-    for (let i = 0; i < algNot.length; i++) {
-        if (isNaN(algNot[i])) {
-            return undefined;
-        }
+    if (isNaN(algNot[1])) {
+        return undefined;
     }
     const row = (Number(algNot[1]) - 1);
     const col = (algNot[0].charCodeAt(0) - 65);
     const indices = {};
     indices.col = col;
     indices.row = row;
-    retur-n indices;
+    return indices;
 }
 
 function placeLetters (board, letter, ...algebraicNotation) {
-    const cells = {};
+    const cells = [];
     for (let i = 0; i < algebraicNotation.length; i++) {
         const indices = algebraicToRowCol(algebraicNotation[i]);
         cells.push(indices);
@@ -78,22 +75,22 @@ function placeLetters (board, letter, ...algebraicNotation) {
 function boardToString (board) {
     const sizeOfBoard = Math.sqrt(board.length);
     let fullBoard = "";
-    let header = " ";
+    let header = "  ";
     let cells = "  ";
     let rowCount = 1;
     for (let i = 0; i < sizeOfBoard; i++) {
         header += "  " + String.fromCodePoint(65 + i) + " ";
     }
-    fullBoard += " " + header + "\n";
+    fullBoard += " " + header + " \n";
     for (let i = 0; i < sizeOfBoard; i++) {
         cells += "+---";
         if (i === sizeOfBoard - 1) {
             cells += "+";
         }
     }
-    fullBoard += cells + "\n";
+    fullBoard += " " + cells + "\n";
     for (let i = 0; i < sizeOfBoard; i++) {
-        fullBoard += rowCount;
+        fullBoard += " " + rowCount;
         for (let j = 0; j < sizeOfBoard; j++) {
             fullBoard += " | " + board[sizeOfBoard * i + j];
             if (j === sizeOfBoard - 1) {
@@ -101,7 +98,7 @@ function boardToString (board) {
             }
         }
         fullBoard += "\n";
-        fullBoard += cells + "\n";
+        fullBoard += " " + cells + "\n";
         rowCount++;
     }
     return fullBoard;
@@ -111,7 +108,7 @@ function isBoardFull (board) {
     var empty = function (cell) {
         return cell === " ";
     }
-    return board.some(empty);
+    return !board.some(empty);
 }
 
 function flip (board, row, col) {
@@ -151,13 +148,19 @@ function getCellsToFlip (board, lastRow, lastCol) {
     for (let i = 0; i < sizeOfBoard; i++) {
         let checker = (currentIndex - ((i + 1) * sizeOfBoard));
         if (checker < 0) {
+            accumulator = [];
             break;
         }
-        if (board[checker] === piece && accumulator.length > 0) {
-            toFlip.push(accumulator);
+        if (board[checker] === piece) {
+            if (accumulator.length > 0) {
+                toFlip.push(accumulator);
+            }
+            accumulator = [];
+            break;
         }
         else if (board[checker] === " ") {
             accumulator = [];
+            break;
         }
         else {
             let flipping = indexToRowCol(board, checker);
@@ -167,14 +170,20 @@ function getCellsToFlip (board, lastRow, lastCol) {
     // Check down
     for (let i = 0; i < sizeOfBoard; i++) {
         let checker = (currentIndex + ((i + 1) * sizeOfBoard));
-        if (checker > board.length) {
+        if (checker >= board.length) {
+            accumulator = [];
             break;
         }
-        if (board[checker] === piece && accumulator.length > 0) {
-            toFlip.push(accumulator);
+        if (board[checker] === piece) {
+            if (accumulator.length > 0) {
+                toFlip.push(accumulator);
+            }
+            accumulator = [];
+            break;
         }
         else if (board[checker] === " ") {
             accumulator = [];
+            break;
         }
         else {
             let flipping = indexToRowCol(board, checker);
@@ -185,13 +194,19 @@ function getCellsToFlip (board, lastRow, lastCol) {
     for (let i = 0; i < sizeOfBoard; i++) {
         let checker = currentIndex + (i + 1);
         if ((checker % sizeOfBoard) === 0) {
+            accumulator = [];
             break;
         }
-        if (board[checker] === piece && accumulator.length > 0) {
-            toFlip.push(accumulator);
+        if (board[checker] === piece) {
+            if (accumulator.length > 0) {
+                toFlip.push(accumulator);
+            }
+            accumulator = [];
+            break;
         }
         else if (board[checker] === " ") {
             accumulator = [];
+            break;
         }
         else {
             let flipping = indexToRowCol(board, checker);
@@ -201,14 +216,20 @@ function getCellsToFlip (board, lastRow, lastCol) {
     // Check left
     for (let i = 0; i < sizeOfBoard; i++) {
         let checker = currentIndex - (i + 1);
-        if ((checker % sizeOfBoard) === (sizeOfBoard - 1)) {
+        if ((checker % sizeOfBoard) === (sizeOfBoard - 1) || checker < 0) {
+            accumulator = [];
             break;
         }
-        if (board[checker] === piece && accumulator.length > 0) {
-            toFlip.push(accumulator);
+        if (board[checker] === piece) {
+            if (accumulator.length > 0) {
+                toFlip.push(accumulator);
+            }
+            accumulator = [];
+            break;
         }
         else if (board[checker] === " ") {
             accumulator = [];
+            break;
         }
         else {
             let flipping = indexToRowCol(board, checker);
@@ -218,14 +239,20 @@ function getCellsToFlip (board, lastRow, lastCol) {
     // Check diagonal up right
     for (let i = 0; i < sizeOfBoard; i++) {
         if ((lastRow - (i + 1)) < 0 || (lastCol + (i + 1)) >= sizeOfBoard) {
+            accumulator = [];
             break;
         }
         let checker = rowColToIndex(board, lastRow - (i + 1), lastCol + (i + 1));
-        if (board[checker] === piece && accumulator.length > 0) {
-            toFlip.push(accumulator);
+        if (board[checker] === piece) {
+            if (accumulator.length > 0) {
+                toFlip.push(accumulator);
+            }
+            accumulator = [];
+            break;
         }
         else if (board[checker] === " ") {
             accumulator = [];
+            break;
         }
         else {
             let flipping = indexToRowCol(board, checker);
@@ -234,15 +261,21 @@ function getCellsToFlip (board, lastRow, lastCol) {
     }
     // Check diagonal down right
     for (let i = 0; i < sizeOfBoard; i++) {
-        if ((lastRow + (i + 1)) >= sizeOfBoard || (lastCol + (i + 1)) >= sizeOfBoard) {
+        if ((lastRow + (i + 1)) >= (sizeOfBoard - 1) || (lastCol + (i + 1)) >= (sizeOfBoard - 1)) {
+            accumulator = [];
             break;
         }
         let checker = rowColToIndex(board, lastRow + (i + 1), lastCol + (i + 1));
-        if (board[checker] === piece && accumulator.length > 0) {
-            toFlip.push(accumulator);
+        if (board[checker] === piece) {
+            if (accumulator.length > 0) {
+                toFlip.push(accumulator);
+            }
+            accumulator = [];
+            break;
         }
         else if (board[checker] === " ") {
             accumulator = [];
+            break;
         }
         else {
             let flipping = indexToRowCol(board, checker);
@@ -252,14 +285,20 @@ function getCellsToFlip (board, lastRow, lastCol) {
     // Check diagonal up left
     for (let i = 0; i < sizeOfBoard; i++) {
         if ((lastRow - (i + 1)) < 0 || (lastCol - (i + 1)) < 0) {
+            accumulator = [];
             break;
         }
         let checker = rowColToIndex(board, lastRow - (i + 1), lastCol - (i + 1));
-        if (board[checker] === piece && accumulator.length > 0) {
-            toFlip.push(accumulator);
+        if (board[checker] === piece) {
+            if (accumulator.length > 0) {
+                toFlip.push(accumulator);
+            }
+            accumulator = [];
+            break;
         }
         else if (board[checker] === " ") {
             accumulator = [];
+            break;
         }
         else {
             let flipping = indexToRowCol(board, checker);
@@ -269,14 +308,20 @@ function getCellsToFlip (board, lastRow, lastCol) {
     // Check diagonal down left
     for (let i = 0; i < sizeOfBoard; i++) {
         if ((lastRow + (i + 1)) >= sizeOfBoard || (lastCol - (i + 1)) < 0) {
+            accumulator = [];
             break;
         }
         let checker = rowColToIndex(board, lastRow + (i + 1), lastCol - (i + 1));
-        if (board[checker] === piece && accumulator.length > 0) {
-            toFlip.push(accumulator);
+        if (board[checker] === piece) {
+            if (accumulator.length > 0) {
+                toFlip.push(accumulator);
+            }
+            accumulator = [];
+            break;
         }
         else if (board[checker] === " ") {
             accumulator = [];
+            break;
         }
         else {
             let flipping = indexToRowCol(board, checker);
@@ -288,17 +333,18 @@ function getCellsToFlip (board, lastRow, lastCol) {
 
 function isValidMove (board, letter, row, col) {
     let targetIndex = rowColToIndex(board, row, col);
-    if (board[targetIndex] !== " ") {
+    let newBoard = [...board];
+    if (newBoard[targetIndex] !== " ") {
         return false;
     }
     else {
-        board[targetIndex] = letter;
-        if (getCellsToFlip(board, row, col).length > 0) {
-            board[targetIndex] = " ";
+        newBoard[targetIndex] = letter;
+        if (getCellsToFlip(newBoard, row, col).length > 0) {
+            newBoard[targetIndex] = " ";
             return true;
         }
         else {
-            board[targetIndex] = " ";
+            newBoard[targetIndex] = " ";
             return false;
         }
     }
@@ -330,10 +376,11 @@ function getValidMoves (board, letter) {
     const validMoves = [];
     for (let i = 0; i < board.length; i++) {
         const testing = indexToRowCol(board, i);
-        if (isValidMove(board, letter, testing.row, testing.col)) {
+        if (isValidMove(board, letter, testing.row, testing.col) && board[i] === " ") {
             validMoves.push([testing.row, testing.col]);
         }
     }
+    return validMoves;
 }
 
 module.exports = {
